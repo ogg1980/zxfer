@@ -1945,11 +1945,11 @@ do
       RZFS="ssh $OPTARG /sbin/zfs"
       option_T="ssh $OPTARG "
       # Try to find mbuffer, if not found use "cat -" as noop-buffer
-      ssh $OPTARG "test -x $MBUFFER"
-      if [ 0 == $? ]; then
+      ssh "$OPTARG" "test -x $MBUFFER"
+      if [ "$?" = "0" ]; then
         echo "Using $MBUFFER for receive"
         RZFSreceiveprefix="ssh $OPTARG"
-        RZFSreceive="$MBUFFER -q -s 128k -m 1G| /sbin/zfs"
+        RZFSreceive="$MBUFFER -q -s 128k -m 1G | /sbin/zfs"
       else
         echo "mbuffer not found"
       fi
@@ -1968,7 +1968,7 @@ do
 done
 
 # Read out source and dest values
-shift `expr $OPTIND - 1`
+shift $(expr ${OPTIND} - 1)
 destination=$1
 
 # Basic consistency checking
