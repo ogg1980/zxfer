@@ -146,6 +146,9 @@ trailing_slash=0
 
 LZFS=$( which zfs )
 RZFS=$LZFS
+RZFSreceive=$RZFS
+RZFSreceiveprefix=""
+MBUFFER="/usr/local/bin/mbuffer"
 
 
 LCAT=""
@@ -1941,6 +1944,15 @@ do
     T)
       RZFS="ssh $OPTARG /sbin/zfs"
       option_T="ssh $OPTARG "
+      # Try to find mbuffer, if not found use "cat -" as noop-buffer
+      ssh $OPTARG "test -x $MBUFFER"
+      if [ 0 == $? ]; then
+        echo "Using $MBUFFER for receive"
+        RZFSreceiveprefix="ssh $OPTARG"
+        RZFSreceive="$MBUFFER -q -s 128k -m 1G| /sbin/zfs"
+      else
+        echo "mbuffer not found"
+      fi
       ;;
     u)
       option_u=1
