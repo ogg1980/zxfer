@@ -23,4 +23,4 @@ Changes
 + "Unsupported Properties" support, do not copy properties that are unsupported by the destination pool. Allows replication from 11-CURRENT to 9.2 etc, by automatically ignoring new properties such as: volmode,filesystem_limit,snapshot_limit,filesystem_count,snapshot_count,redundant_metadata
 + Fixed -o mountpoint=foo , it is no longer ignored as readonly if explicitly requested by the user
 + Implemented new -I parameter, ignore these properties and do not try to set them
-+ Added a check for mbuffer and us it if it's installed to speed up transfers
++ Added a check for mbuffer and use it to speed up transfers if available
