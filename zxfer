@@ -1,6 +1,7 @@
 #!/bin/sh
 # BSD HEADER START
 
+# Copyright (c) 2014 Olle Gustafsson <olle@dalnix.se>
 # Copyright (c) 2013-2014 Allan Jude <allanjude@freebsd.org>
 # Copyright (c) 2010,2011 Ivan Nash Dreckman
 # Copyright (c) 2007, 2008 Constantin Gonzalez
@@ -94,7 +95,7 @@
 #           Where destination is a ZFS filesystem e.g.  poolname/fsname
 
 # zxfer version
-zxfer_version="1.1.3-20140721"
+zxfer_version="1.1.4-20140808"
 
 # Default values
 option_b=0
@@ -408,7 +409,7 @@ copy_snap() {
           echo "Estimated size is: ${SIZE_EST}"
           PROGRESS_DIALOG=$( echo "$option_D" | sed "s#%%size%%#$SIZE_EST#g" | \
             sed "s#%%title%%#$copysrc#g" )
-          $LZFS send "$copysrc" | dd obs=1m | dd bs=1m | $PROGRESS_DIALOG | \
+          $LZFS send "$copysrc" | $RZFSreceiveprefix "$RZFSreceive receive $option_F $copydest" | dd obs=1m | dd bs=1m | $PROGRESS_DIALOG | \
             $RZFS receive $option_F "$copydest" || \
             { echo "Error when zfs send/receiving."; beep; exit 1; }
         else
@@ -419,15 +420,15 @@ copy_snap() {
           PROGRESS_DIALOG=$( echo $option_D | sed "s#%%size%%#$SIZE_EST#g" | \
             sed "s#%%title%%#$copysrc#g" )
           $LZFS send -nv "$copysrc"
-          echo "$LZFS send $copysrc | dd obs=1m | dd bs=1m | $PROGRESS_DIALOG |
+          echo "$LZFS send $copysrc | $RZFSreceiveprefix \"$RZFSreceive receive $option_F $copydest\" | dd obs=1m | dd bs=1m | $PROGRESS_DIALOG |
             $RZFS receive $option_F $copydest"
         fi
       else
         if [ $option_n -eq 0 ]; then
-          $LZFS send "$copysrc" | $RZFS receive $option_F "$copydest" || \
+          $LZFS send $copysrc | $RZFSreceiveprefix "$RZFSreceive receive $option_F $copydest" || \
             { echo "Error when zfs send/receiving."; beep; exit 1; }        
         else
-          echo "$LZFS send $copysrc | $RZFS receive $option_F $copydest"
+          echo "$LZFS send $copysrc | $RZFSreceiveprefix \"$RZFSreceive receive $option_F $copydest\""
         fi
       fi
     else
@@ -456,11 +457,10 @@ copy_snap() {
         fi
       else
         if [ $option_n -eq 0 ]; then
-          $LZFS send -i "$copyprev" "$copysrc" | $RZFS receive $option_F "$copydest" \
+          $LZFS send -i $copyprev $copysrc |  $RZFSreceiveprefix "$RZFSreceive receive $option_F $copydest" \
             || { echo "Error when zfs send/receiving."; beep; exit 1; }
         else
-          echo "$LZFS send -i $copyprev $copysrc | $RZFS receive $option_F
-            $copydest"
+          echo "$LZFS send -i $copyprev $copysrc |  $RZFSreceiveprefix \"$RZFSreceive receive $option_F $copydest\""
         fi
       fi
     fi
@@ -612,11 +612,11 @@ grep ^$source@) > /dev/null 2>&1
         fi
 
         # since the snap was matched, let's not waste our time searching for 
-	# it again
+        # it again
         zfs_source_snaps=$(echo "$zfs_source_snaps" | grep -v "$src_snap")
 
         # let's also break out of the loop, since we've already found what we 
-	# are looking for
+        # are looking for
         break
       fi
     done

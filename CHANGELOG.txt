@@ -1,5 +1,7 @@
 CHANGELOG
 =========
+20140808 ver 1.1.4
+         - Added check for mbuffer and use it if installed to speed up transfers
 20110513 ver 0.9.9
            -Fixed a small but showstopping bug in Solaris that wasn't showing
 	     up in FreeBSD. Thanks predrag....@googlemail.com. Because this
